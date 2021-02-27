@@ -28,13 +28,11 @@ public class SnitchBehaviour : MonoBehaviour
             timeLeft += accelerationTime;
         }
         
-        
     }
  
     void FixedUpdate()
     {
         rb.AddForce(movement * speed);
-        
         lr.SetPosition(0, transform.position);
         lr.SetPosition(1, transform.position + rb.velocity.normalized*5f);
     }
