@@ -60,6 +60,8 @@ public class Gryffindor : MonoBehaviour
         
         if (collision.gameObject.tag == "Gryffindor")
         {
+            //unique trait: encouraging
+            collision.rigidbody.velocity *= 1.2f;
             if (Random.value < 0.05){
                 CollisionDecider(collision.gameObject);
             }

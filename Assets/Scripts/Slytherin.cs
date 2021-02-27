@@ -15,12 +15,17 @@ public class Slytherin : MonoBehaviour
     public float weight;
     public float aggression;
     public float exhaustion;
+    private Vector3 oscillator;
     public float current_exhaustion = 0f;
     public bool unconscious = false;
     
+    
     public float timer = 0f;
+    public float timer2 = 0f;
     public GameObject[] friends;
     public GameObject[] enemies;
+    
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -31,6 +36,7 @@ public class Slytherin : MonoBehaviour
         weight = UniformToNormal(85f,17f);
         aggression = UniformToNormal(30f, 7f);
         exhaustion = UniformToNormal(50f,15f);
+        oscillator = new Vector3(Random.Range(-1f,1f),Random.Range(-1f,1f),Random.Range(-1f,1f));
         rb = GetComponent<Rigidbody>();
         lr = GetComponent<LineRenderer>();
     }
@@ -164,13 +170,20 @@ public class Slytherin : MonoBehaviour
         Vector3 toCenter = new Vector3(0, 50, 0) - transform.position;
         rb.AddForce(toCenter.normalized * (float) System.Math.Sqrt(toCenter.magnitude));
         
+        //unique trait: oscillating
+        timer+= Time.deltaTime;
+        if (timer > 1f){
+            timer = 0f;
+            rb.AddForce(oscillator);
+            oscillator *= -1;
+        }
         //when exhausted, stop for 3 seconds
         current_exhaustion += 0.1f;
         if (current_exhaustion > exhaustion){
             rb.velocity = new Vector3(0,0,0);
-            timer+= Time.deltaTime;
-            if (timer > 3f){
-                timer = 0f;
+            timer2+= Time.deltaTime;
+            if (timer2 > 3f){
+                timer2 = 0f;
                 current_exhaustion = 0f;
             }
         }
