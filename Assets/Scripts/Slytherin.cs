@@ -4,7 +4,7 @@ using UnityEngine;
 
 //speed limit from
 //https://answers.unity.com/questions/9985/limiting-rigidbody-velocity.html
-//
+//misc code from https://docs.unity3d.com
 
 public class Slytherin : MonoBehaviour
 {
@@ -16,6 +16,8 @@ public class Slytherin : MonoBehaviour
     public float aggression;
     public float exhaustion;
     public float current_exhaustion = 0f;
+    public bool unconscious = false;
+    
     public float timer = 0f;
     public GameObject[] friends;
     // Start is called before the first frame update
@@ -37,6 +39,53 @@ public class Slytherin : MonoBehaviour
         
     }
     
+    IEnumerator OnCollisionEnter(Collision collision){
+        
+        //Check for a match with the specific tag on any GameObject that collides with your GameObject
+        if (collision.gameObject.tag == "Wall")
+        {
+            unconscious = true;
+            rb.useGravity = true;
+            yield return null;
+        }
+        if (collision.gameObject.tag == "Floor")
+        {
+            yield return new WaitForSeconds(Random.Range(3f, 6f));
+            transform.position = new Vector3(50f + Random.Range(-10f, 10f),50f + Random.Range(-10f, 10f),50f + Random.Range(-10f, 10f));
+            rb.useGravity = false;
+            unconscious = false;
+            yield return null;
+        }
+        
+        if (collision.gameObject.tag == "Slytherin")
+        {
+            if (Random.value < 0.05){
+                CollisionDecider(collision.gameObject);
+            }
+        }
+        
+        //Opposing team collision is handled by only 1 side
+        if (collision.gameObject.tag == "Gryffindor")
+        {
+            CollisionDecider(collision.gameObject);
+        }
+    }
+    
+    int CollisionDecider(GameObject opponent){
+        float value1 = (float) aggression * (Random.value * (1.2f - 0.8f) + 0.8f) *  (1f -(current_exhaustion / exhaustion));
+        float value2 = (float) opponent.getComponent(typeof(Gryffindor)).aggression * (Random.value * (1.2f - 0.8f) + 0.8f) *  (1f -(opponent.current_exhaustion / opponent.exhaustion));
+        if (value1 < value2)
+        {
+            unconscious = true;
+            rb.useGravity = true;
+            return 0;
+        } else {
+            opponent.gameObject.unconscious = true;
+            opponent.gameObject.rb.useGravity = true;
+            return 1;
+        }
+    }
+    
     //normalizer using Box-Mueller transform
     float UniformToNormal(float mean, float deviation){
         return (float)(mean+deviation*(System.Math.Sqrt(-2f*System.Math.Log(Random.Range(0f,1f))) * System.Math.Cos(Random.Range(0f,1f)*2f*System.Math.PI)));
@@ -44,6 +93,11 @@ public class Slytherin : MonoBehaviour
     
     void FixedUpdate()
     {
+        if (unconscious) {
+            lr.SetPosition(0, transform.position);
+            lr.SetPosition(1, transform.position + rb.velocity.normalized*5f);
+            return;
+        }
         rb.AddForce(snitch.transform.position-transform.position);
         float speed = rb.velocity.magnitude;  // test current object speed
         if (speed > maxspeed)

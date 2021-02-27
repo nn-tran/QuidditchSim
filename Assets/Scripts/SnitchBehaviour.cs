@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //random movement code based on https://answers.unity.com/questions/1369351/unity-2d-random-movement.html
-
-
+//misc code from https://docs.unity3d.com
 
 public class SnitchBehaviour : MonoBehaviour
 {
-    private float accelerationTime = 1f;
-    private Vector3 movement;
-    private float timeLeft;
-    private Rigidbody rb;
-    private LineRenderer lr;
-    private float speed = 10f;
+    public float accelerationTime = 1f;
+    public Vector3 movement;
+    public float timeLeft;
+    public Rigidbody rb;
+    public LineRenderer lr;
+    public float speed = 10f;
     // Use this for initialization
     void Start ()
     {
