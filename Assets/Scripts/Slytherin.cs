@@ -20,10 +20,12 @@ public class Slytherin : MonoBehaviour
     
     public float timer = 0f;
     public GameObject[] friends;
+    public GameObject[] enemies;
     // Start is called before the first frame update
     void Start()
     {
         friends = GameObject.FindGameObjectsWithTag("Slytherin");
+        
         transform.Translate(new Vector3(Random.Range(-10f,10f), Random.Range(-10f,10f), Random.Range(-10f,10f)));
         maxspeed = UniformToNormal(16f,2f);
         weight = UniformToNormal(85f,17f);
@@ -73,17 +75,39 @@ public class Slytherin : MonoBehaviour
     
     int CollisionDecider(GameObject opponent){
         float value1 = (float) aggression * (Random.value * (1.2f - 0.8f) + 0.8f) *  (1f -(current_exhaustion / exhaustion));
-        float value2 = (float) opponent.getComponent(typeof(Gryffindor)).aggression * (Random.value * (1.2f - 0.8f) + 0.8f) *  (1f -(opponent.current_exhaustion / opponent.exhaustion));
-        if (value1 < value2)
+        float value2 = 0f;
+        
+        if (opponent.GetComponent(typeof(Gryffindor)) != null)
         {
-            unconscious = true;
-            rb.useGravity = true;
-            return 0;
+            Gryffindor op = (Gryffindor) opponent.GetComponent(typeof(Gryffindor));
+            value2 = (float) op.aggression * (Random.value * (1.2f - 0.8f) + 0.8f) *  (1f -(op.current_exhaustion / op.exhaustion));
+        
+            if (value1 < value2)
+            {
+                unconscious = true;
+                rb.useGravity = true;
+                return 0;
+            } else {
+                op.unconscious = true;
+                op.rb.useGravity = true;
+                return 1;
+            }
         } else {
-            opponent.gameObject.unconscious = true;
-            opponent.gameObject.rb.useGravity = true;
-            return 1;
+            Slytherin op = (Slytherin) opponent.GetComponent(typeof(Slytherin));
+            value2 = (float) op.aggression * (Random.value * (1.2f - 0.8f) + 0.8f) *  (1f -(op.current_exhaustion / op.exhaustion));
+            if (value1 < value2)
+            {
+                unconscious = true;
+                rb.useGravity = true;
+                return 0;
+            } else {
+                op.unconscious = true;
+                op.rb.useGravity = true;
+                return 1;
+            }
         }
+        
+        
     }
     
     //normalizer using Box-Mueller transform
