@@ -26,6 +26,5 @@ public class Scores : MonoBehaviour
         GUI.Box (new Rect (100, 100, 100, 100), 
             ("Slytherin:\n" + score_slytherin.ToString() + "\nGryffindor:\n" 
             + score_gryffindor.ToString()));
-        GUI.Box (new Rect (0, 0, 100, 50), "Game Over");
     }
 }
