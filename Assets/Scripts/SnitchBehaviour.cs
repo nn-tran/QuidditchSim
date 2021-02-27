@@ -12,7 +12,7 @@ public class SnitchBehaviour : MonoBehaviour
     public float timeLeft;
     public Rigidbody rb;
     public LineRenderer lr;
-    public float speed = 10f;
+    public float speed = 1f;
     // Use this for initialization
     void Start ()
     {
@@ -28,11 +28,13 @@ public class SnitchBehaviour : MonoBehaviour
             timeLeft += accelerationTime;
         }
         
+        
     }
  
     void FixedUpdate()
     {
         rb.AddForce(movement * speed);
+        
         lr.SetPosition(0, transform.position);
         lr.SetPosition(1, transform.position + rb.velocity.normalized*5f);
     }

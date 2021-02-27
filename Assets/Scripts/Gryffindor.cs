@@ -39,6 +39,7 @@ public class Gryffindor : MonoBehaviour
         
     }
     
+    //collision handler
     IEnumerator OnCollisionEnter(Collision collision){
         
         //Check for a match with the specific tag on any GameObject that collides with your GameObject
@@ -51,7 +52,7 @@ public class Gryffindor : MonoBehaviour
         if (collision.gameObject.tag == "Floor")
         {
             yield return new WaitForSeconds(Random.Range(3f, 6f));
-            transform.position = new Vector3(-50f + Random.Range(-10f, 10f),50f + Random.Range(-10f, 10f),-50f + Random.Range(-10f, 10f));
+            transform.position = new Vector3(-25f + Random.Range(-10f, 10f),25f + Random.Range(-10f, 10f),-25f + Random.Range(-10f, 10f));
             rb.useGravity = false;
             unconscious = false;
             yield return null;
@@ -62,19 +63,27 @@ public class Gryffindor : MonoBehaviour
             if (Random.value < 0.05){
                 CollisionDecider(collision.gameObject);
             }
+            yield return null;
         }
         
-        //Opposing team collision is handled by only 1 side
-        if (collision.gameObject.tag == "Gryffindor")
+        if (collision.gameObject.tag == "Snitch")
         {
-            CollisionDecider(collision.gameObject);
+            Scores.score_gryffindor++;
+            if (Scores.last_score == 0) Scores.score_slytherin++;
+            else Scores.last_score = 0;
+            yield return null;
         }
     }
     
+    //code decides who wins in a collision
+    //opposing-team collision handled only by Slytherin for consistency
+    //same-team collision is separate
     int CollisionDecider(GameObject opponent){
         float value1 = (float) aggression * (Random.value * (1.2f - 0.8f) + 0.8f) *  (1f -(current_exhaustion / exhaustion));
-        float value2 = 0f;
         
+        float value2 = 0f;
+
+        //the 2 branches are identical, except for the type of the opponent
         if (opponent.GetComponent(typeof(Gryffindor)) != null)
         {
             Gryffindor op = (Gryffindor) opponent.GetComponent(typeof(Gryffindor));
@@ -115,11 +124,14 @@ public class Gryffindor : MonoBehaviour
     
     void FixedUpdate()
     {
+        //don't add force on knockout (momentum is maintained)
         if (unconscious) {
             lr.SetPosition(0, transform.position);
             lr.SetPosition(1, transform.position + rb.velocity.normalized*5f);
             return;
         }
+        
+        //this code handles the speed limit
         rb.AddForce(snitch.transform.position-transform.position);
         float speed = rb.velocity.magnitude;  // test current object speed
         if (speed > maxspeed)
@@ -130,6 +142,8 @@ public class Gryffindor : MonoBehaviour
             Vector3 brakeVelocity = normalisedVelocity * brakeSpeed;  // make the brake Vector3 value
             rb.AddForce(-brakeVelocity);  // apply opposing brake force
         }
+        
+        //trying to avoid friendlies
         foreach (var friend in friends)
         {
             Vector3 avoidForce = transform.position - friend.transform.position;
@@ -137,9 +151,10 @@ public class Gryffindor : MonoBehaviour
         }
         
         //moving away from wall is approx. equivalent to moving to center
-        Vector3 toCenter = new Vector3(0, 100, 0) - transform.position;
+        Vector3 toCenter = new Vector3(0, 50, 0) - transform.position;
         rb.AddForce(toCenter.normalized * (float) System.Math.Sqrt(toCenter.magnitude));
         
+        //when exhausted, stop for 3 seconds
         current_exhaustion += 0.1f;
         if (current_exhaustion > exhaustion){
             rb.velocity = new Vector3(0,0,0);
@@ -149,6 +164,8 @@ public class Gryffindor : MonoBehaviour
                 current_exhaustion = 0f;
             }
         }
+        
+        //direction 'arrow'
         lr.SetPosition(0, transform.position);
         lr.SetPosition(1, transform.position + rb.velocity.normalized*5f);
 
